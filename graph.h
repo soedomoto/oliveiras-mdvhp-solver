@@ -2,6 +2,7 @@
 #include<fstream>
 #include<vector>
 #include <cmath>
+#include <iomanip>
 
 #define CUSTOMER 1
 #define DEPOT 2
@@ -16,7 +17,7 @@ class Vertex {
         void debug();
         int rId();
         void calcDistances(std::vector<Vertex>);
-        void printDistances();
+        void printDistances(int offset);
 };
 
 class Graph {

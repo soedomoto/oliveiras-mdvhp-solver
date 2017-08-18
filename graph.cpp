@@ -28,6 +28,6 @@ void Graph::calcDistances() {
 
 void Graph::printDistances() {
     for(std::vector<Vertex>::iterator i=this->vertices.begin() +1; i != this->vertices.end(); ++i) {
-        (*i).printDistances();
+        (*i).printDistances(i - this->vertices.begin());
     }
 }

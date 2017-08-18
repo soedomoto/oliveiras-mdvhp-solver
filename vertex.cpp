@@ -32,8 +32,8 @@ void Vertex::calcDistances(std::vector<Vertex> vertices) {
     }
 }
 
-void Vertex::printDistances() {
-    for(std::vector<double>::iterator i=distances.begin() +1; i !=distances.end(); ++i) {
-        std::cout << id << " " << i - distances.begin() << " " << *i << std::endl;
+void Vertex::printDistances(int offset) {
+    for(std::vector<double>::iterator i=distances.begin() +1 + offset; i !=distances.end(); ++i) {
+        std::cout << std::setprecision (3) << id << "\t" << i - distances.begin() << "\t" << *i << std::endl;
     }
 }
