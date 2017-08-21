@@ -24,16 +24,20 @@ void Vertex::calcDistances(std::vector<Vertex> vertices) {
     this->distances.push_back(0);
     double xFactor, yFactor;
     for(std::vector<Vertex>::iterator i=vertices.begin() +1; i != vertices.end(); ++i) {
-        xFactor = this->x - (*i).x;
-        xFactor *= xFactor;
-        yFactor = this->y - (*i).y;
-        yFactor *= yFactor;
-        this->distances.push_back(sqrt(xFactor + yFactor));
+        if((*i).type != DEPOT) {
+            xFactor = this->x - (*i).x;
+            xFactor *= xFactor;
+            yFactor = this->y - (*i).y;
+            yFactor *= yFactor;
+            this->distances.push_back(sqrt(xFactor + yFactor));
+        }
     }
 }
 
 void Vertex::printDistances(int offset) {
-    for(std::vector<double>::iterator i=distances.begin() +1 + offset; i !=distances.end(); ++i) {
-        std::cout << std::setprecision (3) << id << "\t" << i - distances.begin() << "\t" << *i << std::endl;
+    if(this->type != DEPOT) {
+        for(std::vector<double>::iterator i=distances.begin() +1 + offset; i !=distances.end(); ++i) {
+            std::cout << std::setprecision (3) << id << "\t" << i - distances.begin() << "\t" << *i << std::endl;
+        }
     }
 }
