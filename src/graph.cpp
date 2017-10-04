@@ -179,7 +179,7 @@ int* Graph::customers() {
 int** Graph::assignment() {
     this->resetRoutes();
     int nRoutes = this->nDepots * this->maxVehicles;
-    int **r = new int*[nRoutes];
+    int **r = new int*[nRoutes], *last = new int[maxVehicles];
     for(int i = 0; i < nRoutes; ++i) {
         r[i] = new int[this->nVertices];
         for(int j = 1; j < this->nVertices; ++j) {
@@ -197,101 +197,30 @@ int** Graph::assignment() {
             }
         }
     }
-
-
-    int* centers = new int[this->maxVehicles];
-    int* workSpace = new int[this->nVertices];
-    int centersLength = 0;
-    int index = 0;
-    int foundCenter = -1;
-    bool centerFounded = false, fewCustomers = false;
-    for(int i = 0; i < this->nDepots; ++i) {
-        Vertex* depot = this->vertices[this->_depots[i]];
-        centers[0] = depot->furthest(depot->id(), 1);
-        centersLength = 1;
-        index = 1;
-        fewCustomers = false;
-        centerFounded = false;
-        for(int j = 0; j < this->nVertices; ++j) {
-            workSpace[j] = 0;
+    for(int i=0; i < this->nDepots; ++i){
+        for(int j=0; j < maxVehicles; ++j){
+            last[j] = this->_depots[i];
         }
-        while(centersLength < maxVehicles && !fewCustomers) {
-            for(int j = 0; j < centersLength; ++j) {
-                Vertex* v = this->vertices[centers[j]];
-                int furthest = v->furthest(depot->id(), index);
-                if(furthest == -1) {
-                    fewCustomers = true;
-                }
-                else {
-                    ++workSpace[furthest];
-                    /*if(centersLength == 1) {
-                        printf("FUR00: %d, %d\n", furthest, workSpace[furthest]);
-                    }*/
-                    if (workSpace[furthest] == centersLength && !centerFounded) {
-                        foundCenter = furthest;
-                        centerFounded = true;
-                    }
-                }
-            }
-
-            while (centerFounded && centersLength < maxVehicles) {
-                centerFounded = false;
-                centers[centersLength] = foundCenter;
-                /*if(centersLength == 1) {
-                    printf("FUR11: %d\n", centers[centersLength]);
-                }*/
-                ++centersLength;
-                for(int j = 1; j <= index; ++j) {
-                    Vertex* v = this->vertices[foundCenter];
-                    int furthest = v->furthest(depot->id(), j);
-                    if(furthest == -1) {
-                        fewCustomers = true;
-                    }
-                    else {
-                        ++workSpace[furthest];
-                        if (workSpace[furthest] == centersLength && !centerFounded) {
-                            foundCenter = furthest;
-                            centerFounded = true;
-                        }
-                    }
-                }
-            }
-
-            ++index;
-        }
-
-        for(int k = 0; k < centersLength; ++k) {
-            /*if(centers[k] == 10) {
-                printf("%d OK OKDO\n", k);
-            }*/
-            this->vertices[centers[k]]->changeToRoute(i*maxVehicles+k +1);
-            r[i*maxVehicles][centers[k]] = 0;
-            r[i*maxVehicles+k][centers[k]] = 1;
-        }
-
         bool allAssigned = false;
-        while (!allAssigned) {
-            for(int k = 0; k < centersLength; ++k) {
-                int vertex = this->vertices[centers[k]]->nearest(depot->id());
-                if(vertex == -1) {
+        while(!allAssigned){
+            for(int k=0; k < maxVehicles; k++){
+                Vertex* vertex = this->vertices[last[k]];
+                int next = vertex->nearest(this->_depots[i]);
+                if(next == -1) {
                     allAssigned = true;
-                    k = centersLength;
                 }
                 else {
-                    /*if(vertex == 10) {
-                        printf("1111111111\n");
-                    }*/
-                    this->vertices[vertex]->changeToRoute(i*maxVehicles+k +1);
-                    r[i*maxVehicles][vertex] = 0;
-                    r[i*maxVehicles+k][vertex] = 1;
+                    this->vertices[next]->changeToRoute(i*maxVehicles+k +1);
+                    r[i*maxVehicles][next] = 0;
+                    r[i*maxVehicles+k][next] = 1;
+                    last[k] = next;
                 }
-
             }
         }
-
         r[i*maxVehicles][this->_depots[i]] = 0;
-        depot->changeToRoute(0);
+        this->vertices[this->_depots[i]]->changeToRoute(0);
     }
+
     /*for(int k = 0; k < this->nDepots*maxVehicles; ++k) {
         printf("(%d)[%d", k+1, r[k][1]);
         for(int j = 2; j < this->nVertices; ++j) {
